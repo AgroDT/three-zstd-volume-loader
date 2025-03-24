@@ -4,6 +4,13 @@ A Three.js plugin for loading volumetric data (e.g., CT scan results)
 compressed using ZSTD. This package is particularly useful for rendering soil
 CT scan data with Three.js.
 
+## Features
+
+- Efficient loading of ZSTD-compressed volumetric data
+- Written in TypeScript
+- Zero dependencies
+- Total gzipped size: 24.36&nbsp;KB (JS: 1.05&nbsp;KB, WASM: 23.31&nbsp;KB)
+
 ## Installation
 
 You can import this plugin directly through services like
