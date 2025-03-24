@@ -1,0 +1,38 @@
+{
+  "name": "@agrodt/three-zstd-volume-loader",
+  "version": "0.1.0",
+  "description": "A Three.js plugin for loading volumetric data (e.g., CT scan results) compressed using ZSTD.",
+  "author": "Petr Tsymbarovich <petr@tsymbarovich.ru>",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist",
+    "src/**/*.ts"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/agrodt-three-zstd-volume-loader.min.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.dev.json",
+    "prepare": "tsc -p tsconfig.dev.json && rollup -c",
+    "test": "node --experimental-strip-types --test --experimental-test-coverage test/*.ts"
+  },
+  "packageManager": "pnpm@10.6.5",
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/node": "^22.13.11",
+    "@types/three": "^0.174.0",
+    "rollup": "^4.37.0",
+    "rollup-plugin-copy2": "^0.4.0",
+    "three": "^0.174.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "three": "^0.174.0"
+  }
+}

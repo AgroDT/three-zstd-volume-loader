@@ -1,0 +1,6 @@
+[submodule "third-party/walloc"]
+	path = third-party/walloc
+	url = https://github.com/wingo/walloc
+[submodule "third-party/zstd"]
+	path = third-party/zstd
+	url = https://github.com/facebook/zstd
