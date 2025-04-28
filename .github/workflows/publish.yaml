@@ -23,8 +23,6 @@ jobs:
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
           
       - name: Generate pnpm-lock if missing
         run: test -f pnpm-lock.yaml || pnpm install --lockfile-only
