@@ -4,7 +4,10 @@
   "description": "A Three.js plugin for loading volumetric data (e.g., CT scan results) compressed using ZSTD.",
   "author": "Petr Tsymbarovich <petr@tsymbarovich.ru>",
   "license": "MIT",
-  "homepage": "https://github.com/AgroDT/three-zstd-volume-loader",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AgroDT/three-zstd-volume-loader.git"
+  },
   "bugs": {
     "url": "https://github.com/AgroDT/three-zstd-volume-loader/issues"
   },
