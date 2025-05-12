@@ -167,7 +167,7 @@ metadata_bytes = json.dumps(
     separators=(',',':'),
 ).encode()
 
-print(f'compressing a volume of size {width}x{height}x{depth}')
+print(f'compressing a volume of size {x_size}x{y_size}x{z_size}')
 compressed = zstandard.compress(data.tobytes('F'))
 
 ## For better compression use something like
