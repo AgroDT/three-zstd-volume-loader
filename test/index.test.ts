@@ -8,16 +8,18 @@ import {loadZSTDDecLib, type ZSTDDecLib, ZstdVolumeLoader, type Volume} from '..
 describe('loadZSTDDecLib', async () => {
   mockFetch();
 
-  const [zstd, zstd2] = await Promise.all([
+  const [mod, mod2] = await Promise.all([
     loadZSTDDecLib(),
     loadZSTDDecLib(),
   ]);
 
   it('loaded only once', async () => {
-    assert.ok(Object.is(zstd, zstd2));
-    const zstd3 = await loadZSTDDecLib();
-    assert.ok(Object.is(zstd, zstd3));
+    assert.ok(Object.is(mod, mod2));
+    const mod3 = await loadZSTDDecLib();
+    assert.ok(Object.is(mod, mod3));
   });
+
+  const zstd = (await WebAssembly.instantiate(mod)).exports as unknown as ZSTDDecLib;
 
   it('exports memory', () => assert.ok(zstd.memory instanceof WebAssembly.Memory));
   it('exports malloc', () => assert.ok(typeof zstd.malloc === 'function'));
@@ -112,7 +114,7 @@ class ProgressEventMock {
   }
 };
 
-function loadVolume(zstd: ZSTDDecLib, filename: string): Promise<Volume> {
+function loadVolume(zstd: WebAssembly.Module, filename: string): Promise<Volume> {
   const url = fileURLToPath(new URL(filename, import.meta.url));
   return new ZstdVolumeLoader(zstd).loadAsync(url);
 }

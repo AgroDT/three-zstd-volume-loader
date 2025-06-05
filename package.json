@@ -1,6 +1,6 @@
 {
   "name": "@agrodt/three-zstd-volume-loader",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A Three.js plugin for loading volumetric data (e.g., CT scan results) compressed using ZSTD.",
   "author": "Petr Tsymbarovich <petr@tsymbarovich.ru>",
   "license": "MIT",

@@ -41,26 +41,24 @@ export interface Volume<T extends NpArrayName = NpArrayName> {
   data: NpJsArray<T>;
 }
 
-let zstdDecLibInstance: ZSTDDecLib | null = null;
-let zstdDecLibLoadingPromise: Promise<ZSTDDecLib> | null = null;
+let zstdDecLibModule: WebAssembly.Module | null = null;
+let zstdDecLibLoadingPromise: Promise<WebAssembly.Module> | null = null;
 
 /**
  * Loads the bundled ZSTD WebAssembly decompression library.
  * @returns A promise resolving to the ZSTD decompression library.
  */
-export async function loadZSTDDecLib(): Promise<ZSTDDecLib> {
-  if (zstdDecLibInstance) {
-    return zstdDecLibInstance;
+export async function loadZSTDDecLib(): Promise<WebAssembly.Module> {
+  if (zstdDecLibModule) {
+    return zstdDecLibModule;
   }
 
   if (!zstdDecLibLoadingPromise) {
-    zstdDecLibLoadingPromise = WebAssembly.instantiateStreaming(
-      fetch(new URL('./zstddeclib.wasm', import.meta.url)),
-    )
-    .then(({instance}) => {
-      zstdDecLibInstance = instance.exports as unknown as ZSTDDecLib;
+    const url = new URL('./zstddeclib.wasm', import.meta.url);
+    zstdDecLibLoadingPromise = WebAssembly.compileStreaming(fetch(url)).then(module => {
+      zstdDecLibModule = module;
       zstdDecLibLoadingPromise = null;
-      return zstdDecLibInstance;
+      return zstdDecLibModule;
     });
   }
 
@@ -71,7 +69,7 @@ export async function loadZSTDDecLib(): Promise<ZSTDDecLib> {
  * Loader for ZSTD-compressed volumetric data.
  */
 export class ZstdVolumeLoader extends THREE.Loader<Volume> {
-  private zstd: ZSTDDecLib;
+  private zstd: WebAssembly.Module;
   private fileLoader: THREE.FileLoader;
 
   /**
@@ -79,7 +77,7 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
    * @param zstd The ZSTD decompression library instance.
    * @param manager Optional loading manager.
    */
-  constructor(zstd: ZSTDDecLib, manager?: THREE.LoadingManager) {
+  constructor(zstd: WebAssembly.Module, manager?: THREE.LoadingManager) {
     super(manager);
     this.zstd = zstd;
     this.fileLoader = new THREE.FileLoader(manager);
@@ -99,29 +97,25 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
     onProgress?: (event: ProgressEvent) => void,
     onError?: (err: unknown) => void,
   ): void => {
-    let onLoad2;
-    if (onLoad) {
-      onLoad2 = (data: string | ArrayBuffer) => {
-        try {
-          const volume = this.processData(data as ArrayBuffer);
-          onLoad(volume);
-        } catch (err) {
-          if (onError) {
-            onError(err);
-          }
-        }
-      };
-    }
+    const onLoad2 = (data: string | ArrayBuffer): void => {
+      let promise: Promise<any> = this.processData(data as ArrayBuffer);
+      if (onLoad) {
+        promise = promise.then(onLoad);
+      }
+      if (onError) {
+        promise = promise.catch(onError);
+      }
+    };
     this.fileLoader.load(url, onLoad2, onProgress, onError);
   }
 
-  private processData = (compressed: ArrayBuffer): Volume => {
+  private processData = async (compressed: ArrayBuffer): Promise<Volume> => {
     const metadata = ZstdVolumeLoader.readMetadata(compressed);
     if (typeof metadata === 'string') {
       throw new Error('Failed to parse metadata: ' + metadata);
     }
 
-    const data = this.decompress(metadata.type, new Uint8Array(compressed));
+    const data = await this.decompress(metadata.type, new Uint8Array(compressed));
 
     return {...metadata, data};
   }
@@ -153,14 +147,23 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
     return {type, xSize, ySize, zSize};
   }
 
-  private decompress = <T extends NpArrayName>(type: T, compressed: Uint8Array): NpJsArray<T> => {
-    const zstd = this.zstd;
+  private decompress = async <T extends NpArrayName>(type: T, compressed: Uint8Array): Promise<NpJsArray<T>> => {
+    const zstd = (await WebAssembly.instantiate(this.zstd)).exports as unknown as ZSTDDecLib;
+
+    function allocate(length: number): number {
+      const ptr = zstd.malloc(length);
+      if (ptr) {
+        return ptr;
+      }
+      throw new Error('Failed to allocate memory for ZSTD buffer');
+    }
+
     let srcPtr = 0;
     let dstPtr = 0;
 
     try {
       const srcSize = compressed.length;
-      const srcPtr = this.allocate(srcSize);
+      const srcPtr = allocate(srcSize);
       const srcArr = new Uint8Array(zstd.memory.buffer, srcPtr, srcSize);
       srcArr.set(compressed);
 
@@ -169,7 +172,7 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
         throw new Error('Invalid compressed data');
       }
 
-      const dstPtr = this.allocate(dstCapacity);
+      const dstPtr = allocate(dstCapacity);
       const resultSize = zstd.ZSTD_decompress(dstPtr, dstCapacity, srcPtr, srcSize);
       if (resultSize < 0) {
         throw new Error('Decompression failed');
@@ -180,13 +183,5 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
       zstd.free(srcPtr);
       zstd.free(dstPtr);
     }
-  }
-
-  private allocate = (length: number): number => {
-    const ptr = this.zstd.malloc(length);
-    if (ptr) {
-      return ptr;
-    }
-    throw new Error('Failed to allocate memory for ZSTD buffer');
   }
 }
