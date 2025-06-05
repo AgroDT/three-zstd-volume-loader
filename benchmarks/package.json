@@ -1,0 +1,18 @@
+{
+  "name": "benchmarks",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "bench": "vite build && vite preview --open"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.6.5",
+  "dependencies": {
+    "@agrodt/three-zstd-volume-loader": "link:..",
+    "tinybench": "^4.0.1",
+    "vite": "^6.3.5"
+  }
+}
