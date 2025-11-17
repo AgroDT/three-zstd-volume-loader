@@ -2,8 +2,6 @@ name: Publish Package to npmjs.com
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
 
@@ -40,6 +38,6 @@ jobs:
         run: pnpm install
 
       - name: Publish package
-        run: pnpm publish --provenance --access public
+        run: pnpm publish --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
