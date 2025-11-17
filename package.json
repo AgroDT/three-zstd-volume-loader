@@ -20,6 +20,9 @@
     ".": {
       "import": "./dist/agrodt-three-zstd-volume-loader.min.mjs",
       "types": "./dist/index.d.ts"
+    },
+    "./zstddeclib.wasm": {
+      "import": "./dist/zstddeclib.wasm"
     }
   },
   "scripts": {
