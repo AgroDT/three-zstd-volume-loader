@@ -18,6 +18,30 @@ h1 {
   text-align: center;
 }
 
+#results {
+  display: grid;
+}
+
+#download-results-button {
+  margin: auto;
+  padding: 0.5rem 1rem;
+  border: 1px solid #1e66f5;
+  border-radius: 8px;
+  background: #1e66f5;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(30, 102, 245, 0.2);
+  transition: background-color 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
+}
+
+#download-results-button:hover {
+  background: #1557d6;
+  border-color: #1557d6;
+  box-shadow: 0 4px 14px rgba(21, 87, 214, 0.28);
+}
+
 .results-table {
   width: 100%;
   max-width: 600px;

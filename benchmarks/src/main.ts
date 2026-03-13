@@ -12,8 +12,27 @@ const samples = [
   'sample2_0750_pores',
 ];
 
+const downloadButtonElem = document.getElementById('download-results-button') as HTMLButtonElement;
 const statusElem = document.getElementById('status') as HTMLParagraphElement;
 const tbodyElem = document.getElementById('tbody') as HTMLTableSectionElement;
+let rawBenchmarkResults = '';
+
+downloadButtonElem.addEventListener('click', () => {
+  if (rawBenchmarkResults.length === 0) {
+    return;
+  }
+
+  const blob = new Blob([rawBenchmarkResults], {type: 'text/csv;charset=utf-8'});
+  const downloadUrl = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = `benchmark-results-${Date.now()}.csv`;
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(downloadUrl);
+});
 
 const bench = new Bench({
   iterations,
@@ -25,12 +44,15 @@ bench.addEventListener('warmup', () => {
 });
 
 bench.addEventListener('start', () => {
+  rawBenchmarkResults = 'task,iteration,latency (ms)\n';
+  downloadButtonElem.hidden = true;
   document.getElementById('results-table')!.hidden = false;
   statusElem.textContent = '🚀 Running benchmarks...';
 });
 
 bench.addEventListener('complete', () => {
   statusElem.textContent = `📊 Results for ${iterations} iteration(s)`;
+  downloadButtonElem.hidden = rawBenchmarkResults.length === 0;
 });
 
 bench.addEventListener('cycle', (evt) => {
@@ -39,7 +61,8 @@ bench.addEventListener('cycle', (evt) => {
     return;
   }
 
-  const {p50, mad} = task.result.latency ?? {};
+  const taskName = task.name;
+  const {p50, mad, samples} = task.result.latency ?? {};
   let latencyMedian = 'NA';
   if (p50 !== undefined) {
     latencyMedian = p50.toLocaleString(undefined, {maximumFractionDigits: 3});
@@ -48,8 +71,12 @@ bench.addEventListener('cycle', (evt) => {
     }
   }
   const row = document.createElement('tr');
-  row.innerHTML = `<td>${task.name}</td><td>${latencyMedian}</td>`;
+  row.innerHTML = `<td>${taskName}</td><td>${latencyMedian}</td>`;
   tbodyElem.appendChild(row);
+
+  samples.forEach((latency, index) => {
+    rawBenchmarkResults += `${taskName},${index + 1},${latency}\n`;
+  });
 });
 
 const zstd = await loadZSTDDecLib()
