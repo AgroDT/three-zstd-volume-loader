@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -12,7 +13,6 @@ jobs:
 
     permissions:
       contents: read
-      packages: write
       id-token: write
 
     steps:
@@ -24,20 +24,15 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
 
-      - name: Generate pnpm-lock if missing
-        run: test -f pnpm-lock.yaml || pnpm install --lockfile-only
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org/'
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Publish package
         run: pnpm publish --provenance --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
