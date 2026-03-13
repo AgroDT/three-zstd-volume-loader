@@ -163,7 +163,7 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
 
     try {
       const srcSize = compressed.length;
-      const srcPtr = allocate(srcSize);
+      srcPtr = allocate(srcSize);
       const srcArr = new Uint8Array(zstd.memory.buffer, srcPtr, srcSize);
       srcArr.set(compressed);
 
@@ -172,7 +172,7 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
         throw new Error('Invalid compressed data');
       }
 
-      const dstPtr = allocate(dstCapacity);
+      dstPtr = allocate(dstCapacity);
       const resultSize = zstd.ZSTD_decompress(dstPtr, dstCapacity, srcPtr, srcSize);
       if (resultSize < 0) {
         throw new Error('Decompression failed');
