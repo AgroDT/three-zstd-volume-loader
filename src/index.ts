@@ -178,7 +178,15 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
         throw new Error('Decompression failed');
       }
 
-      return new NP_JS_TYPE_MAP[type](zstd.memory.buffer, dstPtr, resultSize);
+      const Ctor = NP_JS_TYPE_MAP[type];
+      const elementCount = resultSize / Ctor.BYTES_PER_ELEMENT;
+      if (!Number.isInteger(elementCount)) {
+        throw new Error('Decompressed data size is not aligned with metadata type');
+      }
+
+      const copiedBuffer = zstd.memory.buffer.slice(dstPtr, dstPtr + resultSize);
+
+      return new Ctor(copiedBuffer, 0, elementCount);
     } finally {
       zstd.free(srcPtr);
       zstd.free(dstPtr);
