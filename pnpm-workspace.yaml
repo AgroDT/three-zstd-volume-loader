@@ -1,5 +1,3 @@
 packages:
   - .
   - benchmarks
-onlyBuiltDependencies:
-  - esbuild

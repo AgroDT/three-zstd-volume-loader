@@ -4,7 +4,7 @@ import {loadZSTDDecLib, ZstdVolumeLoader} from '@agrodt/three-zstd-volume-loader
 
 import './main.css';
 
-const iterations = 10;
+const iterations = 2;
 const samples = [
   'sample1_0750_solids',
   'sample1_0750_pores',
@@ -37,6 +37,7 @@ downloadButtonElem.addEventListener('click', () => {
 const bench = new Bench({
   iterations,
   warmupIterations: 3,
+  warmup: false,
 });
 
 bench.addEventListener('warmup', () => {
@@ -55,14 +56,13 @@ bench.addEventListener('complete', () => {
   downloadButtonElem.hidden = rawBenchmarkResults.length === 0;
 });
 
-bench.addEventListener('cycle', (evt) => {
-  const task = evt.task;
-  if (!task?.result) {
+bench.addEventListener('cycle', ({task}) => {
+  if (task.result.state !== 'completed') {
     return;
   }
 
   const taskName = task.name;
-  const {p50, mad, samples} = task.result.latency ?? {};
+  const {p50, mad, samples} = task.result.latency;
   let latencyMedian = 'NA';
   if (p50 !== undefined) {
     latencyMedian = p50.toLocaleString(undefined, {maximumFractionDigits: 3});
@@ -74,7 +74,7 @@ bench.addEventListener('cycle', (evt) => {
   row.innerHTML = `<td>${taskName}</td><td>${latencyMedian}</td>`;
   tbodyElem.appendChild(row);
 
-  samples.forEach((latency, index) => {
+  samples?.forEach((latency, index) => {
     rawBenchmarkResults += `${taskName},${index + 1},${latency}\n`;
   });
 });

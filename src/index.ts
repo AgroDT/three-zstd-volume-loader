@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const NP_JS_TYPE_MAP = Object.freeze({
+const NP_JS_TYPE_MAP = {
   int8: Int8Array,
   int16: Int16Array,
   int32: Int32Array,
@@ -11,7 +11,7 @@ const NP_JS_TYPE_MAP = Object.freeze({
   uint64: BigUint64Array,
   float32: Float32Array,
   float64: Float64Array,
-});
+} as const;
 
 type NpJsTypeMap = typeof NP_JS_TYPE_MAP;
 type NpArrayName = keyof NpJsTypeMap;
