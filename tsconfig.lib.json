@@ -1,0 +1,15 @@
+{
+  "$schema": "https://www.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "tsBuildInfoFile": "node_modules/.tmp/tsbuildinfo.lib.json"
+  },
+  "include": [
+    "src"
+  ]
+}

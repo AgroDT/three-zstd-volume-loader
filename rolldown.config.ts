@@ -1,8 +1,8 @@
 import {readFile} from 'node:fs/promises';
 import {dts} from 'rolldown-plugin-dts';
+import type { RolldownOptions, RolldownPlugin } from 'rolldown';
 
-/** @type {import('rolldown').RolldownPlugin} */
-const copyZstddeclibWasm = {
+const copyZstddeclibWasm: RolldownPlugin = {
   name: 'copy-zstddeclib-wasm',
   async generateBundle() {
     this.emitFile({
@@ -13,7 +13,6 @@ const copyZstddeclibWasm = {
   },
 };
 
-/** @type {import('rolldown').RolldownOptions} */
 export default {
   input: {
     'agrodt-three-zstd-volume-loader.min': 'src/index.ts',
@@ -27,7 +26,7 @@ export default {
     minify: true,
   },
   plugins: [
-    dts(),
+    dts({tsconfig: "tsconfig.lib.json"}),
     copyZstddeclibWasm,
   ]
-}
+} satisfies RolldownOptions;

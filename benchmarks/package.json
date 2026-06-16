@@ -4,14 +4,14 @@
   "description": "",
   "private": true,
   "scripts": {
-    "bench": "vite build && vite preview --open"
+    "bench": "tsc && vite build && vite preview --open"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@agrodt/three-zstd-volume-loader": "link:..",
-    "tinybench": "^6.0.0",
-    "vite": "^8.0.0"
+    "tinybench": "6.0.2",
+    "vite": "8.0.16"
   }
 }
