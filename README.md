@@ -28,8 +28,8 @@ You can import this plugin directly through services like
     <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three/build/three.module.min.js",
-        "@agrodt/three-zstd-volume-loader": "https://esm.run/@agrodt/three-zstd-volume-loader"
+        "three": "https://cdn.jsdelivr.net/npm/three/+esm",
+        "@agrodt/three-zstd-volume-loader": "https://cdn.jsdelivr.net/npm/@agrodt/three-zstd-volume-loader/+esm"
       }
     }
     </script>

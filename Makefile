@@ -1,4 +1,4 @@
-CC ?= clang
+CC := clang
 CFLAGS := --target=wasm32 -O3 -flto -nostdlib -DNDEBUG $(CFLAGS)
 
 LD ?= wasm-ld

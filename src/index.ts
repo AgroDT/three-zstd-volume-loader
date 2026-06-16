@@ -4,11 +4,9 @@ const NP_JS_TYPE_MAP = {
   int8: Int8Array,
   int16: Int16Array,
   int32: Int32Array,
-  int64: BigInt64Array,
   uint8: Uint8Array,
   uint16: Uint16Array,
   uint32: Uint32Array,
-  uint64: BigUint64Array,
   float32: Float32Array,
   float64: Float64Array,
 } as const;
@@ -70,6 +68,7 @@ export async function loadZSTDDecLib(): Promise<WebAssembly.Module> {
  */
 export class ZstdVolumeLoader extends THREE.Loader<Volume> {
   private zstd: WebAssembly.Module;
+  private zstdInstancePromise: Promise<ZSTDDecLib> | null = null;
   private fileLoader: THREE.FileLoader;
 
   /**
@@ -120,6 +119,19 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
     return {...metadata, data};
   }
 
+  private getZstd = async (): Promise<ZSTDDecLib> => {
+    if (!this.zstdInstancePromise) {
+      this.zstdInstancePromise = WebAssembly.instantiate(this.zstd)
+        .then(instance => instance.exports as unknown as ZSTDDecLib)
+        .catch(err => {
+          this.zstdInstancePromise = null;
+          throw err;
+        });
+    }
+
+    return this.zstdInstancePromise;
+  }
+
   private static readMetadata(compressed: ArrayBuffer): Omit<Volume, 'data'> | string {
     const view = new DataView(compressed);
 
@@ -148,7 +160,7 @@ export class ZstdVolumeLoader extends THREE.Loader<Volume> {
   }
 
   private decompress = async <T extends NpArrayName>(type: T, compressed: Uint8Array): Promise<NpJsArray<T>> => {
-    const zstd = (await WebAssembly.instantiate(this.zstd)).exports as unknown as ZSTDDecLib;
+    const zstd = await this.getZstd();
 
     function allocate(length: number): number {
       const ptr = zstd.malloc(length);

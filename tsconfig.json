@@ -1,23 +1,16 @@
 {
+  "$schema": "https://www.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "target": "ES2024",
-    "module": "Node18",
-    "noUncheckedSideEffectImports": true,
-    "sourceMap": true,
-    "verbatimModuleSyntax": true,
-    "strict": true,
-    "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "declaration": true,
-    "declarationMap": true,
-    "allowJs": true
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "tsBuildInfoFile": "node_modules/.tmp/tsbuildinfo.json"
   },
   "include": [
-    "src/**/*"
+    "src",
+    "test",
+    "rolldown.config.ts"
   ]
 }

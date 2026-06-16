@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 import {describe, it, mock, before, after} from 'node:test';
-import {fileURLToPath} from 'url';
-import assert from 'assert';
+import {fileURLToPath} from 'node:url';
+import assert from 'node:assert';
 
 import {loadZSTDDecLib, type ZSTDDecLib, ZstdVolumeLoader, type Volume} from '../src/index.ts';
 
@@ -67,7 +67,7 @@ describe('ZstdVolumeLoader', async () => {
 
   it('bad metadata: dtype', () => assert.rejects(
     loadVolume(zstd, './volume-bad-dtype.raw.zst'),
-    new Error('Failed to parse metadata: got `u8` data type, expected one of int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64'),
+    new Error('Failed to parse metadata: got `u8` data type, expected one of int8, int16, int32, uint8, uint16, uint32, float32, float64'),
   ));
 
   it('bad metadata: size', () => assert.rejects(
@@ -91,12 +91,11 @@ function mockFetch() {
 }
 
 async function fetchLocal(input: URL | RequestInfo) {
-  if (typeof input === 'object') {
-    if (input instanceof Request) {
-      input = input.url;
-    } else {
-      input = fileURLToPath(input);
-    }
+  if (input instanceof Request) {
+    input = input.url;
+  }
+  if (input instanceof URL || input.startsWith('file:')) {
+    input = fileURLToPath(input);
   }
   const body = await fs.readFile(input);
   return new Response(body, {headers: {'Content-Type': 'application/wasm'}});
@@ -115,6 +114,6 @@ class ProgressEventMock {
 };
 
 function loadVolume(zstd: WebAssembly.Module, filename: string): Promise<Volume> {
-  const url = fileURLToPath(new URL(filename, import.meta.url));
+  const url = new URL(filename, import.meta.url).href;
   return new ZstdVolumeLoader(zstd).loadAsync(url);
 }

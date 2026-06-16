@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["vite/client"],
+    "tsBuildInfoFile": "node_modules/.tmp/tsbuildinfo.json"
+  },
+  "include": [
+    "src"
+  ]
+}
